@@ -10,8 +10,7 @@ public class Constants {
     public static final String MY_CLIENT_ID = BuildConfig.CLIENTID;
     public static final String MY_CLIENT_SECRET = BuildConfig.CLIENTSECRET;
     public static final int REQUEST_CODE_ASK_LOCATION_PERMISSION = 100;
-    public static final int LOCATION_REFRESH_TIME = 60 * 60 * 1000;     //1hr
-    public static final int LOCATION_REFRESH_DISTANCE = 0;     //any movement
+    public static final int LOCATION_REFRESH_TIME = 1000;
 
     public static final String FOURSQUARE_BASE_URL_VENUES_LIST = "https://api.foursquare.com/v2/venues/";
     public static final String FOURSQUARE_BASE_URL_VENUE_DETAILS = "https://api.foursquare.com/v2/";
@@ -28,12 +27,15 @@ public class Constants {
     public static final String GYM_CATEGORY_ID = "4bf58dd8d48988d175941735";
     public static final String HOTELS_CATEGORY_ID = "4bf58dd8d48988d1fa931735";
 
-    //    ?ll=28.6330,77.1387&categoryId=4d4b7105d754a06374d81259&client_id=OUMVAROYJKNAXE04CRHGKWTZ5BDQAGLXHEQ02KRAPN2YJCAT&client_secret=DSQOOUFL2Z11O3P2EQ5E55LMXN1VOYAFSULXRSUU2M54LZWH&limit=10&radius=1000&v=20140828")
     public static final String LATEST_VERSION_API = "20140828";
 
     public static final String VENUE_ID = "venue_id";
 
     public static final String LAT_LNG = "ll";
+    public static final String LIMIT_VALUE = "20";
+    public static final String RADIUS_VALUE = "2000";
+    public static final String INTENT = "intent";
+    public static final String INTENT_VALUE = "browse";
     public static final String CATEGORY_ID = "categoryId";
     public static final String LIMIT = "limit";
     public static final String RADIUS = "radius";

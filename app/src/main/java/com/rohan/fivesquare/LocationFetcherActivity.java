@@ -25,6 +25,9 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
@@ -38,60 +41,43 @@ import java.util.Locale;
 
 import butterknife.BindView;
 
-public class LocationFetcherActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class LocationFetcherActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     @BindView(R.id.current_location_text_view)
     TextView mCurrentLocationTextView;
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLocation;
-    private Location mLastLocation;
     private PlaceAutocompleteFragment mPlaceAutocompleteFragment;
+
     private LocationManager mLocationManager;
-    private android.location.LocationListener mLocationListener;
+    private LocationRequest mLocationRequest;
+    private FusedLocationProviderApi mFusedLocationProviderApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_fetcher);
 
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Needs location permission", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setSmallestDisplacement(20);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(Constants.LOCATION_REFRESH_TIME);
+        mLocationRequest.setFastestInterval(Constants.LOCATION_REFRESH_TIME);
 
-        mLocationListener = new android.location.LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                mLocation = location;
-            }
+        mFusedLocationProviderApi = LocationServices.FusedLocationApi;
 
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
+        buildGoogleApiClient();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
 
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-        };
-
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.LOCATION_REFRESH_TIME,
-                Constants.LOCATION_REFRESH_DISTANCE, mLocationListener);
 
     }
 
@@ -110,21 +96,19 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
                     return;
                 }
 
-//                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-
                 if (ActivityCompat.checkSelfPermission(LocationFetcherActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(LocationFetcherActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     if (Build.VERSION.SDK_INT >= 23)
                         requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_CODE_ASK_LOCATION_PERMISSION);
                     return;
                 }
 
-//                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.LOCATION_REFRESH_TIME,
-//                        Constants.LOCATION_REFRESH_DISTANCE, mLocationListener);
-
                 if (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                    Toast.makeText(LocationFetcherActivity.this, "", Toast.LENGTH_SHORT).show();
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(LocationFetcherActivity.this);
                     builder.setMessage("Enable GPS?");
+                    builder.setCancelable(false);
                     builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -141,12 +125,10 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
                     });
 
                     builder.show();
+                    Toast.makeText(LocationFetcherActivity.this, "Enable GPS for accurate location", Toast.LENGTH_SHORT).show();
                 }
 
-                if (mLastLocation != null) {
-                    Toast.makeText(LocationFetcherActivity.this, "mLastLocation not null", Toast.LENGTH_SHORT).show();
-                    mLocation = mLastLocation;
-                } else if (mLocation == null) {
+                if (mLocation == null) {
                     Toast.makeText(LocationFetcherActivity.this, "Location not available right now. Please search manually or try again later.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -155,7 +137,7 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
                 editor.putString(Constants.MY_LATITIUDE, String.valueOf(mLocation.getLatitude()));
-                editor.putString(Constants.MY_LONGITUDE, String.valueOf(mLocation.getLatitude()));
+                editor.putString(Constants.MY_LONGITUDE, String.valueOf(mLocation.getLongitude()));
 
                 Geocoder geocoder;
                 List<Address> addresses;
@@ -169,11 +151,8 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
                 }
 
                 int maxAddressLines = addresses.get(0).getMaxAddressLineIndex();
-//                StringBuilder address = null;
                 String address = "";
-//                address.append("");
                 for (int i = 0; i < maxAddressLines; i++)
-//                    address.append(addresses.get(0).getAddressLine(i)).append(" "); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
                     address += (addresses.get(0).getAddressLine(i)) + " "; // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
 
 //                            String city = addresses.get(0).getLocality();
@@ -187,6 +166,7 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
 
                 Intent i = new Intent(LocationFetcherActivity.this, MainActivity.class);
                 i.putExtra("", "");
+                Toast.makeText(LocationFetcherActivity.this, "Location Updated", Toast.LENGTH_SHORT).show();
                 startActivity(i);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -206,6 +186,7 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
 
                 Intent i = new Intent(LocationFetcherActivity.this, MainActivity.class);
                 i.putExtra("", "");
+                Toast.makeText(LocationFetcherActivity.this, "Location Updated", Toast.LENGTH_SHORT).show();
                 startActivity(i);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -223,6 +204,8 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
                 .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .enableAutoManage(this, this)
                 .build();
     }
@@ -236,11 +219,12 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Needs location permission", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LocationFetcherActivity.this, "Permission not granted.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mFusedLocationProviderApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
     }
 
     @Override
@@ -270,4 +254,9 @@ public class LocationFetcherActivity extends AppCompatActivity implements Google
         }
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+//        Toast.makeText(LocationFetcherActivity.this, "Location available now.", Toast.LENGTH_SHORT).show();
+    }
 }

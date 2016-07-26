@@ -42,7 +42,7 @@ public class VenueTipsAdapter extends RecyclerView.Adapter<VenueTipsAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        Picasso.with(mContext).load(mItemsList.get(position).getUser().getPhoto().getPrefix() + "50x50" + mItemsList.get(position).getUser().getPhoto().getSuffix()).into(holder.mUserImageView);
+        Picasso.with(mContext).load(mItemsList.get(position).getUser().getUserPhoto().getPrefix() + "50x50" + mItemsList.get(position).getUser().getUserPhoto().getSuffix()).placeholder(R.drawable.placeholder).into(holder.mUserImageView);
         holder.mUserNameTextView.setText(mItemsList.get(position).getUser().getFirstName() + " " + mItemsList.get(position).getUser().getLastName());
         holder.mUserTipTextView.setText(mItemsList.get(position).getText());
     }

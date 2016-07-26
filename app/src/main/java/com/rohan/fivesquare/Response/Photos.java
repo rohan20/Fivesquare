@@ -1,43 +1,47 @@
 package com.rohan.fivesquare.Response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Photos {
 
-    @SerializedName("prefix")
+    @SerializedName("count")
     @Expose
-    private String prefix;
-    @SerializedName("suffix")
+    private Integer count;
+    @SerializedName("groups")
     @Expose
-    private String suffix;
+    private List<Group> groups = new ArrayList<>();
 
     /**
-     * @return The prefix
+     * @return The count
      */
-    public String getPrefix() {
-        return prefix;
+    public Integer getCount() {
+        return count;
     }
 
     /**
-     * @param prefix The prefix
+     * @param count The count
      */
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
     /**
-     * @return The suffix
+     * @return The groups
      */
-    public String getSuffix() {
-        return suffix;
+    public List<Group> getGroups() {
+        return groups;
     }
 
     /**
-     * @param suffix The suffix
+     * @param groups The groups
      */
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.rohan.fivesquare.Adapters;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -12,10 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.rohan.fivesquare.Constants;
+import com.rohan.fivesquare.Utils.Constants;
 import com.rohan.fivesquare.MainActivity;
 import com.rohan.fivesquare.R;
-import com.rohan.fivesquare.RESTAdapter;
+import com.rohan.fivesquare.Utils.RESTAdapter;
 import com.rohan.fivesquare.Response.ResponseDetails;
 import com.rohan.fivesquare.VenueDetailsFragment;
 import com.rohan.fivesquare.VenueModel;
@@ -34,9 +35,12 @@ public class VenuesAdapter extends RecyclerView.Adapter<VenuesAdapter.ViewHolder
 
     Context mContext;
     private List<VenueModel> mVenues;
+    private ProgressDialog progressDialog;
 
     public VenuesAdapter(Context context) {
         mContext = context;
+        progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage("Fetching details...");
     }
 
     /**
@@ -64,15 +68,12 @@ public class VenuesAdapter extends RecyclerView.Adapter<VenuesAdapter.ViewHolder
         holder.mAddress.setText(mVenues.get(position).getAddress());
         holder.mDistance.setText(mVenues.get(position).getDistance());
         Picasso.with(mContext).load(mVenues.get(position).getIcon()).placeholder(R.drawable.food).into(holder.mIcon);
-//        holder.mIcon.setImageURI(Uri.parse(mVenues.get(position).getIcon()));
-        if (position % 3 == 0)
-            holder.mSparkButton.setChecked(true);
-        else
-            holder.mSparkButton.setChecked(false);
 
         holder.mVenueItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                progressDialog.show();
 
                 RESTAdapter restAdapter = new RESTAdapter(Constants.FOURSQUARE_BASE_URL_VENUE_DETAILS);
                 Call<ResponseDetails> request = restAdapter.getFoursquareAPI().getVenueDetails(
@@ -103,11 +104,13 @@ public class VenuesAdapter extends RecyclerView.Adapter<VenuesAdapter.ViewHolder
                                 .addToBackStack(null)
                                 .commit();
 
+                        progressDialog.hide();
+
                     }
 
                     @Override
                     public void onFailure(Call<ResponseDetails> call, Throwable t) {
-
+                        progressDialog.hide();
                     }
                 });
 
@@ -146,10 +149,8 @@ public class VenuesAdapter extends RecyclerView.Adapter<VenuesAdapter.ViewHolder
             mAddress = (TextView) itemView.findViewById(R.id.address_text_view);
             mIcon = (ImageView) itemView.findViewById(R.id.icon_image_view);
             mDistance = (TextView) itemView.findViewById(R.id.distance_text_view);
-            mSparkButton = (SparkButton) itemView.findViewById(R.id.spark_button_favourite);
             mVenueItem = (RelativeLayout) itemView.findViewById(R.id.venue_item_relative_layout);
 
-//            ButterKnife.bind(mContext, itemView);
         }
     }
 }

@@ -13,8 +13,12 @@ public class MyLatLng {
         this.lng = lng;
     }
 
+    public String getLatLng() {
+        return lat + "," + lng;
+    }
+
     @Override
     public String toString() {
-        return String.format("%.1f,%.1f", lat, lng);
+        return String.format("%.4f,%.4f", lat, lng);
     }
 }

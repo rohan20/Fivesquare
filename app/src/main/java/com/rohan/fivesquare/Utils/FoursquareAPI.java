@@ -16,6 +16,7 @@ public interface FoursquareAPI {
     @GET("search")
     Call<Response> getAPIResponse(
             @Query(Constants.LAT_LNG) String latlng,
+            @Query(Constants.INTENT) String intentValue,
             @Query(Constants.CATEGORY_ID) String categoryID,
             @Query(Constants.CLIENT_ID) String clientID,
             @Query(Constants.CLIENT_SECRET) String clientSecret,
@@ -32,6 +33,4 @@ public interface FoursquareAPI {
             @Query(Constants.VERSION) String version
     );
 
-//venues:    ?ll=28.6330,77.1387&categoryId=4d4b7105d754a06374d81259&client_id=OUMVAROYJKNAXE04CRHGKWTZ5BDQAGLXHEQ02KRAPN2YJCAT&client_secret=DSQOOUFL2Z11O3P2EQ5E55LMXN1VOYAFSULXRSUU2M54LZWH&limit=10&radius=1000&v=20140828")
-    //venue details: 501e52cde4b099ff7781306a?client_id=OUMVAROYJKNAXE04CRHGKWTZ5BDQAGLXHEQ02KRAPN2YJCAT&client_secret=DSQOOUFL2Z11O3P2EQ5E55LMXN1VOYAFSULXRSUU2M54LZWH&v=20160725
 }
