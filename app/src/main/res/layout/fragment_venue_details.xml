@@ -125,6 +125,14 @@
                     android:layout_weight="1"
                     android:src="@drawable/foursquare_logo" />
 
+                <ImageView
+                    android:id="@+id/details_navigation_image_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_navigation_blue_800_48dp" />
+
             </LinearLayout>
 
         </RelativeLayout>

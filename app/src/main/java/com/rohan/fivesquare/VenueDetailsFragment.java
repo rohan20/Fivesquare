@@ -38,6 +38,7 @@ public class VenueDetailsFragment extends Fragment {
     ImageView mIconImageView;
     ImageView mCallImageView;
     TextView mLikesTextView;
+    ImageView mNavigationImageView;
 
     public VenueDetailsFragment() {
         // Required empty public constructor
@@ -66,6 +67,7 @@ public class VenueDetailsFragment extends Fragment {
         mIconImageView = (ImageView) v.findViewById(R.id.details_icon_image_view);
         mCallImageView = (ImageView) v.findViewById(R.id.details_call_image_view);
         mLikesTextView = (TextView) v.findViewById(R.id.likes_number_text_view);
+        mNavigationImageView = (ImageView) v.findViewById(R.id.details_navigation_image_view);
 
         Bundle b = getArguments();
         Gson gson = new Gson();
@@ -147,6 +149,22 @@ public class VenueDetailsFragment extends Fragment {
             public void onClick(View view) {
                 Uri uri = Uri.parse(response.getResponse().getVenue().getCanonicalUrl()); // missing 'http://' will cause crashed
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
+
+        mNavigationImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double latitude = response.getResponse().getVenue().getLocation().getLat();
+                double longitude = response.getResponse().getVenue().getLocation().getLng();
+                String label = response.getResponse().getVenue().getName() + ", " + response.getResponse().getVenue().getLocation().getCity();
+                String uriBegin = "geo:" + latitude + "," + longitude;
+                String query = latitude + "," + longitude + "(" + label + ")";
+                String encodedQuery = Uri.encode(query);
+                String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+                Uri uri = Uri.parse(uriString);
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
                 startActivity(intent);
             }
         });
